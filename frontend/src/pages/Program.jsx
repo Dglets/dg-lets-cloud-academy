@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { notificationAPI } from "../utils/api";
 
 const curriculum = [
   {
@@ -45,8 +47,60 @@ const projects = [
 ];
 
 export default function Program() {
+  const [notify, setNotify] = useState(null); // program title
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(""); // success | error
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleNotify = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await notificationAPI.subscribe({ email, program: notify });
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const closeModal = () => { setNotify(null); setStatus(""); setEmail(""); };
   return (
     <div className="pt-16">
+      {notify && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60" onClick={closeModal}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-white font-semibold text-lg">Notify Me</h2>
+                <p className="text-slate-400 text-sm mt-1">{notify}</p>
+              </div>
+              <button onClick={closeModal} className="text-slate-400 hover:text-white text-xl ml-4">✕</button>
+            </div>
+            {status === "success" ? (
+              <div className="text-center py-4">
+                <div className="text-3xl mb-2">🎉</div>
+                <p className="text-green-400 font-medium">You're on the list!</p>
+                <p className="text-slate-400 text-sm mt-1">We'll email you when this program launches.</p>
+                <button onClick={closeModal} className="btn-primary mt-4 text-sm px-6 py-2">Done</button>
+              </div>
+            ) : (
+              <form onSubmit={handleNotify} className="space-y-4">
+                <input type="email" required placeholder="Enter your email" value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500" />
+                {status === "error" && <p className="text-red-400 text-xs">Something went wrong. Try again.</p>}
+                <button type="submit" disabled={submitting} className="btn-primary w-full justify-center py-2 text-sm">
+                  {submitting ? "Submitting..." : "Notify Me When It Launches"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
       <section className="py-24 bg-gradient-to-b from-blue-950/20 to-transparent">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -142,6 +196,53 @@ export default function Program() {
                     <span key={t} className="badge bg-slate-700 text-slate-300 text-xs px-2 py-1">{t}</span>
                   ))}
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Coming Soon */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="section-title">Upcoming Programs</h2>
+            <p className="section-subtitle mx-auto">More tracks are on the way. Be the first to know when they launch.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                icon: "🤖",
+                title: "AI & Machine Learning on AWS",
+                desc: "Learn to build, train, and deploy machine learning models using AWS SageMaker, Rekognition, Comprehend, and other AI services. No prior ML experience required.",
+                tags: ["SageMaker", "Rekognition", "Comprehend", "Bedrock"],
+                color: "border-purple-500/30",
+                badge: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+              },
+              {
+                icon: "🔐",
+                title: "Cloud Security & DevSecOps",
+                desc: "Master cloud security principles, AWS security services, and DevSecOps practices to build and maintain secure cloud infrastructure.",
+                tags: ["IAM", "GuardDuty", "WAF", "Security Hub"],
+                color: "border-cyan-500/30",
+                badge: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+              },
+            ].map(({ icon, title, desc, tags, color, badge }) => (
+              <div key={title} className={`card border ${color} relative overflow-hidden`}>
+                <div className="absolute top-4 right-4">
+                  <span className={`badge border ${badge} text-xs`}>Coming Soon</span>
+                </div>
+                <div className="text-4xl mb-4">{icon}</div>
+                <h3 className="text-white font-bold text-lg mb-2 pr-24">{title}</h3>
+                <p className="text-slate-400 text-sm mb-4 leading-relaxed">{desc}</p>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {tags.map((t) => (
+                    <span key={t} className="badge bg-slate-700 text-slate-300 text-xs px-2 py-1">{t}</span>
+                  ))}
+                </div>
+                <button onClick={() => setNotify(title)} className="mt-5 btn-outline text-sm py-2 px-5 w-full justify-center">
+                  🔔 Notify Me When It Launches
+                </button>
               </div>
             ))}
           </div>

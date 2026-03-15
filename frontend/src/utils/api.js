@@ -33,6 +33,11 @@ export const contactAPI = {
   getAll: () => api.get("/contacts"),
 };
 
+export const notificationAPI = {
+  subscribe: (data) => api.post("/notifications", data),
+  getAll: () => api.get("/notifications"),
+};
+
 export const adminAPI = {
   login: (data) => api.post("/admin/login", data),
 };

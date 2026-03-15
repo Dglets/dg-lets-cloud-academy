@@ -9,6 +9,7 @@ const partnershipRoutes = require("./routes/partnerships");
 const blogRoutes = require("./routes/blogs");
 const contactRoutes = require("./routes/contacts");
 const adminRoutes = require("./routes/admin");
+const notificationRoutes = require("./routes/notifications");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/partnerships", partnershipRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok", service: "DG-LETS Cloud Academy API" }));
 
