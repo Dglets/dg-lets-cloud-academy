@@ -11,6 +11,7 @@ import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import ComingSoon from "./pages/ComingSoon";
+import WebDevelopment from "./pages/WebDevelopment";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/partner" element={<Layout><Partner /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
         <Route path="/coming-soon" element={<Layout><ComingSoon /></Layout>} />
+        <Route path="/web-development" element={<Layout><WebDevelopment /></Layout>} />
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
         <Route path="/admin" element={<Layout><AdminLogin /></Layout>} />
         <Route path="/admin/dashboard" element={<Layout><AdminDashboard /></Layout>} />
