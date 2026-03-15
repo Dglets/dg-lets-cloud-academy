@@ -1,4 +1,4 @@
-const { PutCommand, ScanCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
+const { PutCommand, ScanCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { docClient } = require("../config/dynamodb");
 const { v4: uuidv4 } = require("uuid");
 
@@ -33,4 +33,18 @@ const getEnrollment = async (req, res) => {
   res.json(Item);
 };
 
-module.exports = { createEnrollment, getEnrollments, getEnrollment };
+const updateEnrollmentStatus = async (req, res) => {
+  const { status } = req.body;
+  if (!["pending", "approved", "rejected"].includes(status))
+    return res.status(400).json({ error: "Invalid status" });
+  await docClient.send(new UpdateCommand({
+    TableName: TABLE,
+    Key: { id: req.params.id },
+    UpdateExpression: "SET #s = :s",
+    ExpressionAttributeNames: { "#s": "status" },
+    ExpressionAttributeValues: { ":s": status },
+  }));
+  res.json({ message: "Status updated" });
+};
+
+module.exports = { createEnrollment, getEnrollments, getEnrollment, updateEnrollmentStatus };

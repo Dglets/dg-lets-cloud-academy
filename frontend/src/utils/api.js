@@ -13,6 +13,7 @@ api.interceptors.request.use((config) => {
 export const enrollmentAPI = {
   submit: (data) => api.post("/enrollments", data),
   getAll: () => api.get("/enrollments"),
+  updateStatus: (id, status) => api.patch(`/enrollments/${id}/status`, { status }),
 };
 
 export const partnershipAPI = {

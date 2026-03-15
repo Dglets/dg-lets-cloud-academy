@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import AiAssistant from "./components/AiAssistant";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Program from "./pages/Program";
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/admin/dashboard" element={<Layout><AdminDashboard /></Layout>} />
         <Route path="*" element={<Layout><NotFound /></Layout>} />
       </Routes>
+      <AiAssistant />
     </BrowserRouter>
   );
 }

@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { body } = require("express-validator");
-const { createEnrollment, getEnrollments, getEnrollment } = require("../controllers/enrollmentController");
+const { createEnrollment, getEnrollments, getEnrollment, updateEnrollmentStatus } = require("../controllers/enrollmentController");
 const validate = require("../middleware/validate");
 const auth = require("../middleware/auth");
 
@@ -15,5 +15,6 @@ const enrollmentRules = [
 router.post("/", enrollmentRules, validate, createEnrollment);
 router.get("/", auth, getEnrollments);
 router.get("/:id", auth, getEnrollment);
+router.patch("/:id/status", auth, updateEnrollmentStatus);
 
 module.exports = router;
