@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [modal, setModal] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -171,7 +172,8 @@ export default function AdminDashboard() {
               <th className="pb-3 pr-4">Name</th>
               <th className="pb-3 pr-4">Email</th>
               <th className="pb-3 pr-4">Subject</th>
-              <th className="pb-3">Submitted</th>
+              <th className="pb-3 pr-4">Submitted</th>
+              <th className="pb-3">Message</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
@@ -180,7 +182,13 @@ export default function AdminDashboard() {
                 <td className="py-3 pr-4 font-medium text-white">{item.name}</td>
                 <td className="py-3 pr-4">{item.email}</td>
                 <td className="py-3 pr-4">{item.subject || "—"}</td>
-                <td className="py-3 text-slate-400">{formatDate(item.createdAt)}</td>
+                <td className="py-3 pr-4 text-slate-400">{formatDate(item.createdAt)}</td>
+                <td className="py-3">
+                  <button onClick={() => setModal({ type: "contact", item })}
+                    className="text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded px-2 py-1 transition-colors">
+                    View
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -230,10 +238,16 @@ export default function AdminDashboard() {
                 <div className="text-slate-400 text-xs mt-1">{post.category} · {formatDate(post.createdAt)}</div>
                 {post.excerpt && <div className="text-slate-500 text-xs mt-1">{post.excerpt}</div>}
               </div>
-              <button onClick={() => deletePost(post.id)}
-                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 ml-4 flex-shrink-0 transition-colors">
-                Delete
-              </button>
+              <div className="flex gap-2 ml-4 flex-shrink-0">
+                <button onClick={() => setModal({ type: "blog", item: post })}
+                  className="text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded px-3 py-1 transition-colors">
+                  Read
+                </button>
+                <button onClick={() => deletePost(post.id)}
+                  className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 transition-colors">
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -243,6 +257,29 @@ export default function AdminDashboard() {
 
   return (
     <div className="pt-16 min-h-screen">
+      {modal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60" onClick={() => setModal(null)}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-white font-semibold text-lg">
+                  {modal.type === "blog" ? modal.item.title : modal.item.subject || "Message"}
+                </h2>
+                <p className="text-slate-400 text-xs mt-1">
+                  {modal.type === "blog"
+                    ? `${modal.item.category} · ${formatDate(modal.item.createdAt)}`
+                    : `${modal.item.name} · ${modal.item.email} · ${formatDate(modal.item.createdAt)}`}
+                </p>
+              </div>
+              <button onClick={() => setModal(null)} className="text-slate-400 hover:text-white text-xl ml-4">✕</button>
+            </div>
+            <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+              {modal.type === "blog" ? modal.item.content : modal.item.message}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
