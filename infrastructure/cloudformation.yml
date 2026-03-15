@@ -153,7 +153,7 @@ Resources:
     Properties:
       FunctionName: dg-lets-api
       Runtime: nodejs20.x
-      Handler: src/index.handler
+      Handler: lambda.handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 30
       MemorySize: 256
@@ -184,7 +184,7 @@ Resources:
       CorsConfiguration:
         AllowOrigins:
           - !Sub "https://${CloudFrontDistribution.DomainName}"
-        AllowMethods: [GET, POST, DELETE, OPTIONS]
+        AllowMethods: [GET, POST, PATCH, DELETE, OPTIONS]
         AllowHeaders: [Content-Type, Authorization]
 
   ApiIntegration:
