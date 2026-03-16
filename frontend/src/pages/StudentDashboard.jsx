@@ -33,8 +33,9 @@ export default function StudentDashboard() {
       setAssignments(a.data || []);
       setTests(t.data || []);
       setTutorials(tu.data || []);
-    } catch {
-      navigate("/student");
+    } catch (err) {
+      console.error("fetchAll error:", err);
+      if (err.response?.status === 401) navigate("/student");
     } finally {
       setLoading(false);
     }
@@ -200,7 +201,9 @@ export default function StudentDashboard() {
                         {t.videoUrl.includes("youtube.com") || t.videoUrl.includes("youtu.be") ? (
                           <iframe
                             className="w-full h-full"
-                            src={t.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")}
+                            src={t.videoUrl.includes("youtu.be/")
+                              ? t.videoUrl.replace("youtu.be/", "youtube.com/embed/").split("?")[0]
+                              : t.videoUrl.replace("watch?v=", "embed/").split("&")[0]}
                             title={t.title}
                             allowFullScreen
                           />

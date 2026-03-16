@@ -16,9 +16,7 @@ router.post("/login", [body("email").isEmail(), body("password").notEmpty()], va
 // Grades (instructor only)
 router.post("/grades", instructorAuth, [body("studentId").notEmpty(), body("refId").notEmpty(), body("score").isNumeric(), body("maxScore").isNumeric()], validate, submitGrade);
 router.get("/grades", instructorAuth, getAllGrades);
-router.get("/grades/student/:studentId", instructorAuth, getGradesByStudent);
-
-// Admin can also view all grades
 router.get("/grades/all", auth, getAllGrades);
+router.get("/grades/student/:studentId", instructorAuth, getGradesByStudent);
 
 module.exports = router;

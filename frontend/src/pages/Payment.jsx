@@ -33,7 +33,11 @@ export default function Payment() {
   const [error, setError] = useState("");
 
   const programFee = FEES[form.program] || 65000;
-  const paymentAmount = form.paymentType === "registration" ? FEES.registration : programFee;
+  const paymentAmount = form.paymentType === "registration"
+    ? FEES.registration
+    : form.paymentType === "full"
+    ? FEES.registration + programFee
+    : programFee;
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -146,11 +150,7 @@ export default function Payment() {
                 </div>
                 <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                   <span className="text-slate-400 text-sm">Amount to Pay: </span>
-                  <span className="text-green-400 font-bold text-lg">
-                    {form.paymentType === "full"
-                      ? `₦${(FEES.registration + programFee).toLocaleString()}`
-                      : `₦${paymentAmount.toLocaleString()}`}
-                  </span>
+                  <span className="text-green-400 font-bold text-lg">₦{paymentAmount.toLocaleString()}</span>
                 </div>
                 <div>
                   <label className="block text-sm text-slate-300 mb-1.5">Payment Reference Number</label>
