@@ -705,6 +705,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60" onClick={() => setModal(null)}>
           <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">
