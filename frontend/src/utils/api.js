@@ -39,8 +39,10 @@ export const partnershipAPI = {
 
 export const blogAPI = {
   getAll: () => api.get("/blogs"),
+  getAllAdmin: () => api.get("/blogs/all"),
   getOne: (id) => api.get(`/blogs/${id}`),
   create: (data) => api.post("/blogs", data),
+  toggle: (id) => api.patch(`/blogs/${id}/toggle`),
   delete: (id) => api.delete(`/blogs/${id}`),
 };
 

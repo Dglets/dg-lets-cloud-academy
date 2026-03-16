@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { body } = require("express-validator");
-const { createPost, getPosts, getPost, deletePost } = require("../controllers/blogController");
+const { createPost, getPosts, getAllPosts, getPost, togglePublished, deletePost } = require("../controllers/blogController");
 const validate = require("../middleware/validate");
 const auth = require("../middleware/auth");
 
@@ -11,8 +11,10 @@ const postRules = [
 ];
 
 router.get("/", getPosts);
+router.get("/all", auth, getAllPosts);
 router.get("/:id", getPost);
 router.post("/", auth, postRules, validate, createPost);
+router.patch("/:id/toggle", auth, togglePublished);
 router.delete("/:id", auth, deletePost);
 
 module.exports = router;

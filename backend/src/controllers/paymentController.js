@@ -8,6 +8,9 @@ const TABLE = process.env.DYNAMODB_PAYMENTS_TABLE;
 const submitPayment = async (req, res) => {
   try {
     const { fullName, email, phone, program, paymentType, referenceNumber, amount } = req.body;
+    const { Items } = await docClient.send(new ScanCommand({ TableName: TABLE }));
+    if (Items.find((p) => p.referenceNumber === referenceNumber))
+      return res.status(409).json({ error: "This reference number has already been submitted." });
     const item = { id: uuidv4(), fullName, email, phone, program, paymentType, referenceNumber, amount, status: "pending", createdAt: new Date().toISOString() };
     await docClient.send(new PutCommand({ TableName: TABLE, Item: item }));
     res.status(201).json({ message: "Payment submitted successfully", id: item.id });

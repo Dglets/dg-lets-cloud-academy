@@ -17,7 +17,7 @@ export default function AdminDashboard() {
   const [instructorForm, setInstructorForm] = useState({ fullName: "", email: "", password: "", subject: "" });
   const [showInstructorForm, setShowInstructorForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
+  const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "", published: true });
   const [showBlogForm, setShowBlogForm] = useState(false);
   const [assignmentForm, setAssignmentForm] = useState({ title: "", description: "", dueDate: "", program: "All" });
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         paymentAPI.getAll(),
         partnershipAPI.getAll(),
         contactAPI.getAll(),
-        blogAPI.getAll(),
+        blogAPI.getAllAdmin(),
         notificationAPI.getAll(),
         studentAPI.getAll(),
         studentAPI.getAssignments(),
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
     setSubmitting(true);
     try {
       await blogAPI.create(blogForm);
-      setBlogForm({ title: "", category: "", excerpt: "", content: "" });
+      setBlogForm({ title: "", category: "", excerpt: "", content: "", published: true });
       setShowBlogForm(false);
       await fetchAll();
     } finally {
@@ -726,8 +726,15 @@ export default function AdminDashboard() {
           <textarea required rows={6} placeholder="Full content..." value={blogForm.content}
             onChange={(e) => setBlogForm((f) => ({ ...f, content: e.target.value }))}
             className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full resize-none" />
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={blogForm.published}
+              onChange={(e) => setBlogForm((f) => ({ ...f, published: e.target.checked }))}
+              className="w-4 h-4 accent-blue-500" />
+            <span className="text-slate-300 text-sm">Publish immediately</span>
+            {!blogForm.published && <span className="badge bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs">Will save as draft</span>}
+          </label>
           <button type="submit" disabled={submitting} className="btn-primary text-sm py-2 px-6">
-            {submitting ? "Publishing..." : "Publish Post"}
+            {submitting ? "Saving..." : blogForm.published ? "Publish Post" : "Save as Draft"}
           </button>
         </form>
       )}
@@ -739,7 +746,12 @@ export default function AdminDashboard() {
           {data.Blogs.map((post) => (
             <div key={post.id} className="flex items-start justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
               <div>
-                <div className="text-white font-medium">{post.title}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-white font-medium">{post.title}</div>
+                  {!post.published && (
+                    <span className="badge bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs">Draft</span>
+                  )}
+                </div>
                 <div className="text-slate-400 text-xs mt-1">{post.category} · {formatDate(post.createdAt)}</div>
                 {post.excerpt && <div className="text-slate-500 text-xs mt-1">{post.excerpt}</div>}
               </div>
@@ -747,6 +759,17 @@ export default function AdminDashboard() {
                 <button onClick={() => setModal({ type: "blog", item: post })}
                   className="text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded px-3 py-1 transition-colors">
                   Read
+                </button>
+                <button onClick={async () => {
+                  await blogAPI.toggle(post.id);
+                  setData((prev) => ({ ...prev, Blogs: prev.Blogs.map((b) => b.id === post.id ? { ...b, published: !b.published } : b) }));
+                }}
+                  className={`text-xs rounded px-3 py-1 border transition-colors ${
+                    post.published
+                      ? "bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-yellow-500/20"
+                      : "bg-green-500/10 hover:bg-green-500/20 text-green-400 border-green-500/20"
+                  }`}>
+                  {post.published ? "Unpublish" : "Publish"}
                 </button>
                 <button onClick={() => deletePost(post.id)}
                   className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 transition-colors">
