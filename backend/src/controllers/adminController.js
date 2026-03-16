@@ -7,10 +7,12 @@ const adminLogin = async (req, res) => {
     if (email !== process.env.ADMIN_EMAIL) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    // Support both plain password (dev) and bcrypt hash (production)
-    let isValid = password === process.env.ADMIN_PASSWORD;
-    if (!isValid && process.env.ADMIN_PASSWORD_HASH) {
+    // Use bcrypt hash if available (production), fallback to plain text (dev)
+    let isValid = false;
+    if (process.env.ADMIN_PASSWORD_HASH) {
       isValid = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
+    } else {
+      isValid = password === process.env.ADMIN_PASSWORD;
     }
     if (!isValid) {
       return res.status(401).json({ error: "Invalid credentials" });
