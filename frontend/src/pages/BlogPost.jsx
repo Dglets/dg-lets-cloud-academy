@@ -9,7 +9,7 @@ export default function BlogPost() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadPost = async () => {
       try {
         const { data } = await blogAPI.getOne(id);
         setPost(data);
@@ -19,7 +19,7 @@ export default function BlogPost() {
         setLoading(false);
       }
     };
-    fetch();
+    loadPost();
   }, [id]);
 
   if (loading) return <div className="pt-16 min-h-screen flex items-center justify-center text-slate-400">Loading...</div>;

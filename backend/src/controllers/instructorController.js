@@ -82,7 +82,10 @@ const submitGrade = async (req, res) => {
 const getAllGrades = async (req, res) => {
   try {
     const { Items } = await docClient.send(new ScanCommand({ TableName: GRADES_TABLE }));
-    res.json(Items.sort((a, b) => new Date(b.gradedAt) - new Date(a.gradedAt)));
+    const sorted = Items.sort((a, b) => new Date(b.gradedAt) - new Date(a.gradedAt));
+    // Instructors only see their own grades; admins (no instructorId on req) see all
+    const result = req.instructor ? sorted.filter((g) => g.instructorId === req.instructor.id) : sorted;
+    res.json(result);
   } catch (err) {
     console.error("getAllGrades error:", err);
     res.status(500).json({ error: "Failed to fetch grades" });

@@ -615,6 +615,91 @@ export default function AdminDashboard() {
     );
   };
 
+  const renderInstructors = () => {
+    const items = data.Instructors;
+    return (
+      <div>
+        <div className="flex justify-end mb-4">
+          <button onClick={() => setShowInstructorForm((v) => !v)} className="btn-primary text-sm py-2 px-4">
+            {showInstructorForm ? "Cancel" : "+ Add Instructor"}
+          </button>
+        </div>
+        {showInstructorForm && (
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setSubmitting(true);
+            try {
+              await instructorAPI.create(instructorForm);
+              setInstructorForm({ fullName: "", email: "", password: "", subject: "" });
+              setShowInstructorForm(false);
+              await fetchAll();
+            } catch (err) {
+              alert(err.response?.data?.error || "Failed to create instructor");
+            } finally {
+              setSubmitting(false);
+            }
+          }} className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input required placeholder="Full Name" value={instructorForm.fullName}
+                onChange={(e) => setInstructorForm((f) => ({ ...f, fullName: e.target.value }))}
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+              <input required type="email" placeholder="Email" value={instructorForm.email}
+                onChange={(e) => setInstructorForm((f) => ({ ...f, email: e.target.value }))}
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input required type="password" minLength={6} placeholder="Password (min 6 chars)" value={instructorForm.password}
+                onChange={(e) => setInstructorForm((f) => ({ ...f, password: e.target.value }))}
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+              <input placeholder="Subject (e.g. Cloud Engineering)" value={instructorForm.subject}
+                onChange={(e) => setInstructorForm((f) => ({ ...f, subject: e.target.value }))}
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            </div>
+            <button type="submit" disabled={submitting} className="btn-primary text-sm py-2 px-6">
+              {submitting ? "Creating..." : "Create Instructor"}
+            </button>
+          </form>
+        )}
+        {items.length === 0 ? (
+          <div className="text-center text-slate-400 py-12">No instructors yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700 text-slate-400 text-left">
+                  <th className="pb-3 pr-4">Name</th>
+                  <th className="pb-3 pr-4">Email</th>
+                  <th className="pb-3 pr-4">Subject</th>
+                  <th className="pb-3 pr-4">Created</th>
+                  <th className="pb-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {items.map((item) => (
+                  <tr key={item.id} className="text-slate-300">
+                    <td className="py-3 pr-4 font-medium text-white">{item.fullName}</td>
+                    <td className="py-3 pr-4">{item.email}</td>
+                    <td className="py-3 pr-4 text-xs">{item.subject || "—"}</td>
+                    <td className="py-3 pr-4 text-slate-400">{formatDate(item.createdAt)}</td>
+                    <td className="py-3">
+                      <button onClick={async () => {
+                        if (!window.confirm("Delete this instructor?")) return;
+                        await instructorAPI.delete(item.id);
+                        setData((prev) => ({ ...prev, Instructors: prev.Instructors.filter((i) => i.id !== item.id) }));
+                      }} className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 transition-colors">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderBlogs = () => (
     <div>
       <div className="flex justify-end mb-4">

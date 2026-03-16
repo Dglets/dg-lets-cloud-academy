@@ -15,7 +15,6 @@ router.get("/all", auth, getAllStudents);
 router.post("/login", [body("email").isEmail(), body("password").notEmpty()], validate, studentLogin);
 router.get("/profile", studentAuth, getStudentProfile);
 router.get("/grades", studentAuth, async (req, res) => {
-  const { getGradesByStudent } = require("../controllers/instructorController");
   req.params.studentId = req.student.id;
   return getGradesByStudent(req, res);
 });
