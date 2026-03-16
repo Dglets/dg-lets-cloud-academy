@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI } from "../utils/api";
 
-const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications"];
+const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students"];
 
 const statusColors = {
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -13,7 +13,7 @@ const statusColors = {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Enrollments");
-  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [] });
+  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [] });
   const [loading, setLoading] = useState(true);
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
@@ -34,12 +34,13 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [enrollments, partnerships, contacts, blogs, notifications] = await Promise.all([
+      const [enrollments, partnerships, contacts, blogs, notifications, students] = await Promise.all([
         enrollmentAPI.getAll(),
         partnershipAPI.getAll(),
         contactAPI.getAll(),
         blogAPI.getAll(),
         notificationAPI.getAll(),
+        studentAPI.getAll(),
       ]);
       setData({
         Enrollments: enrollments.data || [],
@@ -47,6 +48,7 @@ export default function AdminDashboard() {
         Contacts: contacts.data || [],
         Blogs: blogs.data || [],
         Notifications: notifications.data || [],
+        Students: students.data || [],
       });
     } catch {
       navigate("/admin");
@@ -109,6 +111,7 @@ export default function AdminDashboard() {
     if (loading) return <div className="text-center text-slate-400 py-12">Loading...</div>;
     if (activeTab === "Blogs") return renderBlogs();
     if (activeTab === "Notifications") return renderNotifications();
+    if (activeTab === "Students") return renderStudents();
     if (items.length === 0) return <div className="text-center text-slate-400 py-12">No {activeTab.toLowerCase()} yet.</div>;
 
     if (activeTab === "Enrollments") return (
@@ -217,6 +220,41 @@ export default function AdminDashboard() {
                     View
                   </button>
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const renderStudents = () => {
+    const items = data.Students;
+    if (items.length === 0) return <div className="text-center text-slate-400 py-12">No students have been granted access yet.</div>;
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-700 text-slate-400 text-left">
+              <th className="pb-3 pr-4">Name</th>
+              <th className="pb-3 pr-4">Email</th>
+              <th className="pb-3 pr-4">Phone</th>
+              <th className="pb-3 pr-4">Program</th>
+              <th className="pb-3 pr-4">Level</th>
+              <th className="pb-3">Access Granted</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {items.map((item) => (
+              <tr key={item.id} className="text-slate-300">
+                <td className="py-3 pr-4 font-medium text-white">{item.fullName}</td>
+                <td className="py-3 pr-4">{item.email}</td>
+                <td className="py-3 pr-4">{item.phone}</td>
+                <td className="py-3 pr-4 text-xs">{item.program}</td>
+                <td className="py-3 pr-4 capitalize">
+                  <span className="badge bg-blue-500/10 text-blue-400 border border-blue-500/20">{item.experienceLevel}</span>
+                </td>
+                <td className="py-3 text-slate-400">{formatDate(item.accessGrantedAt)}</td>
               </tr>
             ))}
           </tbody>
