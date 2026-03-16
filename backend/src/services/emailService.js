@@ -107,4 +107,17 @@ const sendPortalAccessGranted = (s, password) => sendEmail({
   `),
 });
 
-module.exports = { sendEnrollmentConfirmation, sendEnrollmentApproved, sendEnrollmentRejected, sendPaymentVerified, sendPortalAccessGranted };
+const sendPasswordReset = (s, token) => sendEmail({
+  to: s.email,
+  subject: "🔑 Password Reset — DG-LETS Cloud Academy",
+  html: wrap(`
+    <h2 style="color:#ffffff;">Password Reset Request</h2>
+    <p style="color:#94a3b8;line-height:1.6;">Hi ${s.fullName}, we received a request to reset your student portal password. Click the button below to set a new password.</p>
+    <div style="text-align:center;margin:32px 0;">
+      <a href="${BASE_URL}/student/reset-password?token=${token}" style="background:#3b82f6;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;">Reset My Password →</a>
+    </div>
+    <p style="color:#64748b;font-size:13px;">This link expires in <strong style="color:#f59e0b;">1 hour</strong>. If you did not request this, ignore this email — your password will not change.</p>
+  `),
+});
+
+module.exports = { sendEnrollmentConfirmation, sendEnrollmentApproved, sendEnrollmentRejected, sendPaymentVerified, sendPortalAccessGranted, sendPasswordReset };

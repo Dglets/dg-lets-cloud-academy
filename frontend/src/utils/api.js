@@ -59,6 +59,8 @@ export const paymentAPI = {
 
 export const studentAPI = {
   login: (data) => api.post("/students/login", data),
+  forgotPassword: (data) => api.post("/students/forgot-password", data),
+  resetPassword: (data) => api.post("/students/reset-password", data),
   getProfile: () => api.get("/students/profile"),
   getGrades: () => api.get("/students/grades"),
   getAssignments: () => api.get("/students/assignments"),

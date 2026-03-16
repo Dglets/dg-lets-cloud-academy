@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { body } = require("express-validator");
-const { grantStudentAccess, studentLogin, getStudentProfile, getAllStudents } = require("../controllers/studentController");
+const { grantStudentAccess, studentLogin, getStudentProfile, getAllStudents, requestPasswordReset, resetPassword } = require("../controllers/studentController");
 const { createAssignment, getAssignments, deleteAssignment, createTest, getTests, deleteTest, createTutorial, getTutorials, deleteTutorial } = require("../controllers/portalController");
 const { getGradesByStudent } = require("../controllers/instructorController");
 const validate = require("../middleware/validate");
@@ -14,6 +14,8 @@ router.get("/all", auth, getAllStudents);
 // Student auth
 router.post("/login", [body("email").isEmail(), body("password").notEmpty()], validate, studentLogin);
 router.get("/profile", studentAuth, getStudentProfile);
+router.post("/forgot-password", [body("email").isEmail()], validate, requestPasswordReset);
+router.post("/reset-password", [body("token").notEmpty(), body("password").isLength({ min: 6 })], validate, resetPassword);
 router.get("/grades", studentAuth, async (req, res) => {
   req.params.studentId = req.student.id;
   return getGradesByStudent(req, res);

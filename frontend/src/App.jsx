@@ -16,6 +16,8 @@ import Payment from "./pages/Payment";
 import AdminDashboard from "./pages/AdminDashboard";
 import StudentLogin from "./pages/StudentLogin";
 import StudentDashboard from "./pages/StudentDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import InstructorLogin from "./pages/InstructorLogin";
 import InstructorDashboard from "./pages/InstructorDashboard";
 import BlogPost from "./pages/BlogPost";
@@ -53,6 +55,8 @@ export default function App() {
         <Route path="/admin/dashboard" element={<Layout pathname="/admin/dashboard"><AdminDashboard /></Layout>} />
         <Route path="/student" element={<Layout pathname="/student"><StudentLogin /></Layout>} />
         <Route path="/student/dashboard" element={<Layout pathname="/student/dashboard"><StudentDashboard /></Layout>} />
+        <Route path="/student/forgot-password" element={<Layout pathname="/student/forgot-password"><ForgotPassword /></Layout>} />
+        <Route path="/student/reset-password" element={<Layout pathname="/student/reset-password"><ResetPassword /></Layout>} />
         <Route path="/instructor" element={<Layout pathname="/instructor"><InstructorLogin /></Layout>} />
         <Route path="/instructor/dashboard" element={<Layout pathname="/instructor/dashboard"><InstructorDashboard /></Layout>} />
         <Route path="*" element={<Layout pathname="*"><NotFound /></Layout>} />
