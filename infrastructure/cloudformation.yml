@@ -140,6 +140,10 @@ Resources:
           DYNAMODB_STUDENTS_TABLE: dg-lets-students
           DYNAMODB_INSTRUCTORS_TABLE: dg-lets-instructors
           DYNAMODB_GRADES_TABLE: dg-lets-grades
+          DYNAMODB_ASSIGNMENTS_TABLE: dg-lets-assignments
+          DYNAMODB_TESTS_TABLE: dg-lets-tests
+          DYNAMODB_TUTORIALS_TABLE: dg-lets-tutorials
+          DYNAMODB_ADMINS_TABLE: dg-lets-admins
           JWT_SECRET: !Ref JwtSecret
           ADMIN_EMAIL: !Ref AdminEmail
           ADMIN_PASSWORD: !Ref AdminPassword
