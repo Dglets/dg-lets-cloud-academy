@@ -41,42 +41,40 @@ export default function AdminDashboard() {
 
   const fetchAll = async () => {
     setLoading(true);
-    try {
-      const [enrollments, payments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials, instructors] = await Promise.all([
-        enrollmentAPI.getAll(),
-        paymentAPI.getAll(),
-        partnershipAPI.getAll(),
-        contactAPI.getAll(),
-        blogAPI.getAllAdmin(),
-        notificationAPI.getAll(),
-        studentAPI.getAll(),
-        studentAPI.getAssignments(),
-        studentAPI.getTests(),
-        studentAPI.getTutorials(),
-        instructorAPI.getAll(),
-      ]);
-      setData({
-        Enrollments: enrollments.data || [],
-        Payments: payments.data || [],
-        Partnerships: partnerships.data || [],
-        Contacts: contacts.data || [],
-        Blogs: blogs.data || [],
-        Notifications: notifications.data || [],
-        Students: students.data || [],
-        Assignments: assignments.data || [],
-        Tests: tests.data || [],
-        Tutorials: tutorials.data || [],
-        Instructors: instructors.data || [],
-      });
-    } catch (err) {
-      console.error("fetchAll error:", err);
+    const safe = (promise) => promise.catch((err) => {
       if (err.response?.status === 401) {
         localStorage.removeItem("admin_token");
         navigate("/admin");
       }
-    } finally {
-      setLoading(false);
-    }
+      return { data: [] };
+    });
+    const [enrollments, payments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials, instructors] = await Promise.all([
+      safe(enrollmentAPI.getAll()),
+      safe(paymentAPI.getAll()),
+      safe(partnershipAPI.getAll()),
+      safe(contactAPI.getAll()),
+      safe(blogAPI.getAllAdmin()),
+      safe(notificationAPI.getAll()),
+      safe(studentAPI.getAll()),
+      safe(studentAPI.getAssignments()),
+      safe(studentAPI.getTests()),
+      safe(studentAPI.getTutorials()),
+      safe(instructorAPI.getAll()),
+    ]);
+    setData({
+      Enrollments: enrollments.data || [],
+      Payments: payments.data || [],
+      Partnerships: partnerships.data || [],
+      Contacts: contacts.data || [],
+      Blogs: blogs.data || [],
+      Notifications: notifications.data || [],
+      Students: students.data || [],
+      Assignments: assignments.data || [],
+      Tests: tests.data || [],
+      Tutorials: tutorials.data || [],
+      Instructors: instructors.data || [],
+    });
+    setLoading(false);
   };
 
   const logout = () => {
