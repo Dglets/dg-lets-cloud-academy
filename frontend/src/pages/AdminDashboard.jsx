@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI } from "../utils/api";
 
-const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments"];
+const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests"];
 
 const statusColors = {
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -13,12 +13,14 @@ const statusColors = {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Enrollments");
-  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [] });
+  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [] });
   const [loading, setLoading] = useState(true);
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
   const [assignmentForm, setAssignmentForm] = useState({ title: "", description: "", dueDate: "", program: "All" });
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
+  const [testForm, setTestForm] = useState({ title: "", description: "", duration: "", link: "", program: "All" });
+  const [showTestForm, setShowTestForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modal, setModal] = useState(null);
   const [grantModal, setGrantModal] = useState(null);
@@ -36,7 +38,7 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [enrollments, partnerships, contacts, blogs, notifications, students, assignments] = await Promise.all([
+      const [enrollments, partnerships, contacts, blogs, notifications, students, assignments, tests] = await Promise.all([
         enrollmentAPI.getAll(),
         partnershipAPI.getAll(),
         contactAPI.getAll(),
@@ -44,6 +46,7 @@ export default function AdminDashboard() {
         notificationAPI.getAll(),
         studentAPI.getAll(),
         studentAPI.getAssignments(),
+        studentAPI.getTests(),
       ]);
       setData({
         Enrollments: enrollments.data || [],
@@ -53,6 +56,7 @@ export default function AdminDashboard() {
         Notifications: notifications.data || [],
         Students: students.data || [],
         Assignments: assignments.data || [],
+        Tests: tests.data || [],
       });
     } catch {
       navigate("/admin");
@@ -127,6 +131,25 @@ export default function AdminDashboard() {
     setData((prev) => ({ ...prev, Assignments: prev.Assignments.filter((a) => a.id !== id) }));
   };
 
+  const createTest = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await studentAPI.createTest(testForm);
+      setTestForm({ title: "", description: "", duration: "", link: "", program: "All" });
+      setShowTestForm(false);
+      await fetchAll();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deleteTest = async (id) => {
+    if (!window.confirm("Delete this test?")) return;
+    await studentAPI.deleteTest(id);
+    setData((prev) => ({ ...prev, Tests: prev.Tests.filter((t) => t.id !== id) }));
+  };
+
   const formatDate = (iso) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   const renderTable = () => {
@@ -136,6 +159,7 @@ export default function AdminDashboard() {
     if (activeTab === "Notifications") return renderNotifications();
     if (activeTab === "Students") return renderStudents();
     if (activeTab === "Assignments") return renderAssignments();
+    if (activeTab === "Tests") return renderTests();
     if (items.length === 0) return <div className="text-center text-slate-400 py-12">No {activeTab.toLowerCase()} yet.</div>;
 
     if (activeTab === "Enrollments") return (
@@ -251,6 +275,69 @@ export default function AdminDashboard() {
       </div>
     );
   };
+
+  const renderTests = () => (
+    <div>
+      <div className="flex justify-end mb-4">
+        <button onClick={() => setShowTestForm((v) => !v)} className="btn-primary text-sm py-2 px-4">
+          {showTestForm ? "Cancel" : "+ New Test"}
+        </button>
+      </div>
+      {showTestForm && (
+        <form onSubmit={createTest} className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input required placeholder="Test Title" value={testForm.title}
+              onChange={(e) => setTestForm((f) => ({ ...f, title: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            <select value={testForm.program}
+              onChange={(e) => setTestForm((f) => ({ ...f, program: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full">
+              <option value="All">All Programs</option>
+              <option value="Cloud Engineering Foundations">Cloud Engineering</option>
+              <option value="Web Development">Web Development</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input placeholder="Duration (e.g. 30 mins)" value={testForm.duration}
+              onChange={(e) => setTestForm((f) => ({ ...f, duration: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            <input placeholder="Test Link (optional)" value={testForm.link}
+              onChange={(e) => setTestForm((f) => ({ ...f, link: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+          </div>
+          <textarea required rows={4} placeholder="Test description / instructions..." value={testForm.description}
+            onChange={(e) => setTestForm((f) => ({ ...f, description: e.target.value }))}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full resize-none" />
+          <button type="submit" disabled={submitting} className="btn-primary text-sm py-2 px-6">
+            {submitting ? "Posting..." : "Post Test"}
+          </button>
+        </form>
+      )}
+      {data.Tests.length === 0 ? (
+        <div className="text-center text-slate-400 py-12">No tests yet.</div>
+      ) : (
+        <div className="space-y-3">
+          {data.Tests.map((t) => (
+            <div key={t.id} className="flex items-start justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+              <div>
+                <div className="text-white font-medium">{t.title}</div>
+                <div className="text-slate-400 text-xs mt-1">
+                  {t.program} · {formatDate(t.createdAt)}
+                  {t.duration && <span className="text-blue-400 ml-2">· {t.duration}</span>}
+                </div>
+                <p className="text-slate-500 text-xs mt-1 line-clamp-2">{t.description}</p>
+                {t.link && <a href={t.link} target="_blank" rel="noreferrer" className="text-blue-400 text-xs mt-1 hover:underline">Test Link ↗</a>}
+              </div>
+              <button onClick={() => deleteTest(t.id)}
+                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 ml-4 flex-shrink-0 transition-colors">
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   const renderAssignments = () => (
     <div>
