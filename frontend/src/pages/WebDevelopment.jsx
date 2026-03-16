@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import { enrollmentAPI } from "../utils/api";
 import FormField from "../components/FormField";
@@ -44,6 +44,7 @@ const validate = (values) => {
 };
 
 export default function WebDevelopment() {
+  const navigate = useNavigate();
   const { values, errors, setErrors, loading, setLoading, success, setSuccess, apiError, setApiError, handleChange, reset } = useForm(initialValues);
 
   const handleSubmit = async (e) => {
@@ -56,6 +57,7 @@ export default function WebDevelopment() {
       await enrollmentAPI.submit(values);
       setSuccess(true);
       reset();
+      setTimeout(() => navigate("/payment", { state: { fullName: values.fullName, email: values.email, phone: values.phone, program: "Web Development" } }), 2000);
     } catch (err) {
       setApiError(err.response?.data?.error || "Something went wrong. Please try again.");
     } finally {

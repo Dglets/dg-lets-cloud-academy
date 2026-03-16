@@ -33,6 +33,12 @@ export const contactAPI = {
   getAll: () => api.get("/contacts"),
 };
 
+export const paymentAPI = {
+  submit: (data) => api.post("/payments", data),
+  getAll: () => api.get("/payments"),
+  updateStatus: (id, status) => api.patch(`/payments/${id}/status`, { status }),
+};
+
 export const studentAPI = {
   login: (data) => api.post("/students/login", data),
   getProfile: () => api.get("/students/profile"),

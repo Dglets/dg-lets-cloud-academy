@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI } from "../utils/api";
+import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI, paymentAPI } from "../utils/api";
 
-const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests", "Tutorials"];
+const tabs = ["Enrollments", "Payments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests", "Tutorials"];
 
 const statusColors = {
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -13,7 +13,7 @@ const statusColors = {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Enrollments");
-  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [], Tutorials: [] });
+  const [data, setData] = useState({ Enrollments: [], Payments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [], Tutorials: [] });
   const [loading, setLoading] = useState(true);
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
@@ -40,8 +40,9 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [enrollments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials] = await Promise.all([
+      const [enrollments, payments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials] = await Promise.all([
         enrollmentAPI.getAll(),
+        paymentAPI.getAll(),
         partnershipAPI.getAll(),
         contactAPI.getAll(),
         blogAPI.getAll(),
@@ -53,6 +54,7 @@ export default function AdminDashboard() {
       ]);
       setData({
         Enrollments: enrollments.data || [],
+        Payments: payments.data || [],
         Partnerships: partnerships.data || [],
         Contacts: contacts.data || [],
         Blogs: blogs.data || [],
@@ -179,6 +181,7 @@ export default function AdminDashboard() {
     const items = data[activeTab];
     if (loading) return <div className="text-center text-slate-400 py-12">Loading...</div>;
     if (activeTab === "Blogs") return renderBlogs();
+    if (activeTab === "Payments") return renderPayments();
     if (activeTab === "Notifications") return renderNotifications();
     if (activeTab === "Students") return renderStudents();
     if (activeTab === "Assignments") return renderAssignments();
@@ -291,6 +294,63 @@ export default function AdminDashboard() {
                     className="text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded px-2 py-1 transition-colors">
                     View
                   </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const renderPayments = () => {
+    const items = data.Payments;
+    const payStatusColors = {
+      pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+      verified: "bg-green-500/10 text-green-400 border-green-500/20",
+      rejected: "bg-red-500/10 text-red-400 border-red-500/20",
+    };
+    if (items.length === 0) return <div className="text-center text-slate-400 py-12">No payments submitted yet.</div>;
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-700 text-slate-400 text-left">
+              <th className="pb-3 pr-4">Name</th>
+              <th className="pb-3 pr-4">Email</th>
+              <th className="pb-3 pr-4">Program</th>
+              <th className="pb-3 pr-4">Type</th>
+              <th className="pb-3 pr-4">Amount</th>
+              <th className="pb-3 pr-4">Reference</th>
+              <th className="pb-3 pr-4">Status</th>
+              <th className="pb-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {items.map((item) => (
+              <tr key={item.id} className="text-slate-300">
+                <td className="py-3 pr-4 font-medium text-white">{item.fullName}</td>
+                <td className="py-3 pr-4">{item.email}</td>
+                <td className="py-3 pr-4 text-xs">{item.program}</td>
+                <td className="py-3 pr-4 capitalize text-xs">{item.paymentType}</td>
+                <td className="py-3 pr-4 text-green-400 font-medium">{item.amount}</td>
+                <td className="py-3 pr-4 text-xs font-mono">{item.referenceNumber}</td>
+                <td className="py-3 pr-4">
+                  <span className={`badge border ${payStatusColors[item.status] || payStatusColors.pending}`}>{item.status}</span>
+                </td>
+                <td className="py-3">
+                  {item.status !== "verified" && (
+                    <button onClick={async () => { await paymentAPI.updateStatus(item.id, "verified"); fetchAll(); }}
+                      className="text-xs bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded px-2 py-1 mr-1 transition-colors">
+                      Verify
+                    </button>
+                  )}
+                  {item.status !== "rejected" && (
+                    <button onClick={async () => { await paymentAPI.updateStatus(item.id, "rejected"); fetchAll(); }}
+                      className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-2 py-1 transition-colors">
+                      Reject
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

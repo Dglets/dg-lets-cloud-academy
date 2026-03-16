@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import { enrollmentAPI } from "../utils/api";
 import FormField from "../components/FormField";
@@ -22,6 +23,7 @@ const validate = (values) => {
 };
 
 export default function Enroll() {
+  const navigate = useNavigate();
   const { values, errors, setErrors, loading, setLoading, success, setSuccess, apiError, setApiError, handleChange, reset } = useForm(initialValues);
 
   const handleSubmit = async (e) => {
@@ -35,6 +37,7 @@ export default function Enroll() {
       await enrollmentAPI.submit(values);
       setSuccess(true);
       reset();
+      setTimeout(() => navigate("/payment", { state: { fullName: values.fullName, email: values.email, phone: values.phone, program: "Cloud Engineering Foundations" } }), 2000);
     } catch (err) {
       setApiError(err.response?.data?.error || "Something went wrong. Please try again.");
     } finally {
@@ -49,7 +52,7 @@ export default function Enroll() {
           <div className="text-5xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold text-white mb-2">Enrollment Submitted!</h2>
           <p className="text-slate-400 mb-6">
-            Thank you for enrolling. We'll review your application and reach out within 2–3 business days.
+            Thank you for enrolling. Redirecting you to the payment page...
           </p>
           <button onClick={() => setSuccess(false)} className="btn-primary w-full justify-center">
             Submit Another Application
