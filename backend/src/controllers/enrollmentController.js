@@ -1,6 +1,7 @@
 const { PutCommand, ScanCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { docClient } = require("../config/dynamodb");
 const { v4: uuidv4 } = require("uuid");
+const { sendEnrollmentConfirmation, sendEnrollmentApproved, sendEnrollmentRejected } = require("../services/emailService");
 
 const TABLE = process.env.DYNAMODB_ENROLLMENTS_TABLE;
 
@@ -12,6 +13,7 @@ const createEnrollment = async (req, res) => {
       status: "pending", createdAt: new Date().toISOString(),
     };
     await docClient.send(new PutCommand({ TableName: TABLE, Item: item }));
+    sendEnrollmentConfirmation(item);
     res.status(201).json({ message: "Enrollment submitted successfully", id: item.id });
   } catch (err) {
     console.error("createEnrollment error:", err);
@@ -52,6 +54,12 @@ const updateEnrollmentStatus = async (req, res) => {
       ExpressionAttributeNames: { "#s": "status" },
       ExpressionAttributeValues: { ":s": status },
     }));
+    // Fetch enrollment to get student details for email
+    const { Item } = await docClient.send(new GetCommand({ TableName: TABLE, Key: { id: req.params.id } }));
+    if (Item) {
+      if (status === "approved") sendEnrollmentApproved(Item);
+      if (status === "rejected") sendEnrollmentRejected(Item);
+    }
     res.json({ message: "Status updated" });
   } catch (err) {
     console.error("updateEnrollmentStatus error:", err);

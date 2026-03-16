@@ -1,6 +1,7 @@
 const { PutCommand, ScanCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { docClient } = require("../config/dynamodb");
 const { v4: uuidv4 } = require("uuid");
+const { sendPaymentVerified } = require("../services/emailService");
 
 const TABLE = process.env.DYNAMODB_PAYMENTS_TABLE;
 
@@ -38,6 +39,10 @@ const updatePaymentStatus = async (req, res) => {
       ExpressionAttributeNames: { "#s": "status" },
       ExpressionAttributeValues: { ":s": status },
     }));
+    if (status === "verified") {
+      const { Item } = await docClient.send(new GetCommand({ TableName: TABLE, Key: { id: req.params.id } }));
+      if (Item) sendPaymentVerified(Item);
+    }
     res.json({ message: "Payment status updated" });
   } catch (err) {
     console.error("updatePaymentStatus error:", err);
