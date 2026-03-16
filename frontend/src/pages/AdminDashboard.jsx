@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI } from "../utils/api";
+import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI } from "../utils/api";
 
 const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications"];
 
@@ -19,6 +19,10 @@ export default function AdminDashboard() {
   const [showBlogForm, setShowBlogForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modal, setModal] = useState(null);
+  const [grantModal, setGrantModal] = useState(null);
+  const [grantPassword, setGrantPassword] = useState("");
+  const [grantLoading, setGrantLoading] = useState(false);
+  const [grantMsg, setGrantMsg] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,6 +66,21 @@ export default function AdminDashboard() {
       ...prev,
       Enrollments: prev.Enrollments.map((e) => (e.id === id ? { ...e, status } : e)),
     }));
+  };
+
+  const handleGrantAccess = async (e) => {
+    e.preventDefault();
+    setGrantLoading(true);
+    setGrantMsg("");
+    try {
+      await studentAPI.grantAccess({ enrollmentId: grantModal.id, password: grantPassword });
+      setGrantMsg("success");
+      setGrantPassword("");
+    } catch (err) {
+      setGrantMsg(err.response?.data?.error || "Failed to grant access");
+    } finally {
+      setGrantLoading(false);
+    }
   };
 
   const deletePost = async (id) => {
@@ -130,6 +149,12 @@ export default function AdminDashboard() {
                     <button onClick={() => updateStatus(item.id, "rejected")}
                       className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-2 py-1 transition-colors">
                       Reject
+                    </button>
+                  )}
+                  {item.status === "approved" && (
+                    <button onClick={() => { setGrantModal(item); setGrantMsg(""); setGrantPassword(""); }}
+                      className="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded px-2 py-1 ml-1 transition-colors">
+                      Grant Access
                     </button>
                   )}
                 </td>
@@ -289,7 +314,41 @@ export default function AdminDashboard() {
 
   return (
     <div className="pt-16 min-h-screen">
-      {modal && (
+      {grantModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60" onClick={() => setGrantModal(null)}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-white font-semibold text-lg">Grant Portal Access</h2>
+                <p className="text-slate-400 text-sm mt-1">{grantModal.fullName} · {grantModal.email}</p>
+              </div>
+              <button onClick={() => setGrantModal(null)} className="text-slate-400 hover:text-white text-xl ml-4">✕</button>
+            </div>
+            {grantMsg === "success" ? (
+              <div className="text-center py-4">
+                <div className="text-3xl mb-2">✅</div>
+                <p className="text-green-400 font-medium">Access granted!</p>
+                <p className="text-slate-400 text-sm mt-1">Student can now log in to the portal.</p>
+                <button onClick={() => setGrantModal(null)} className="btn-primary mt-4 text-sm px-6 py-2">Done</button>
+              </div>
+            ) : (
+              <form onSubmit={handleGrantAccess} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-slate-300 mb-1.5">Set Portal Password</label>
+                  <input type="password" required minLength={6} placeholder="Min 6 characters" value={grantPassword}
+                    onChange={(e) => setGrantPassword(e.target.value)}
+                    className="input-field" />
+                </div>
+                {grantMsg && <p className="text-red-400 text-xs">{grantMsg}</p>}
+                <button type="submit" disabled={grantLoading} className="btn-primary w-full justify-center py-2 text-sm">
+                  {grantLoading ? "Granting..." : "Grant Access"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60" onClick={() => setModal(null)}>
           <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">

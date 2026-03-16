@@ -17,7 +17,7 @@ import StudentLogin from "./pages/StudentLogin";
 import StudentDashboard from "./pages/StudentDashboard";
 import NotFound from "./pages/NotFound";
 
-const noFooterRoutes = ["/admin", "/admin/dashboard", "/student", "/student/dashboard"];
+const noFooterRoutes = ["/admin", "/admin/dashboard"];
 
 function Layout({ children, pathname }) {
   const showFooter = !noFooterRoutes.includes(pathname);
