@@ -202,6 +202,7 @@ export default function AdminDashboard() {
               <th className="pb-3 pr-4">Name</th>
               <th className="pb-3 pr-4">Email</th>
               <th className="pb-3 pr-4">Phone</th>
+              <th className="pb-3 pr-4">Program</th>
               <th className="pb-3 pr-4">Level</th>
               <th className="pb-3 pr-4">Date</th>
               <th className="pb-3 pr-4">Status</th>
@@ -214,6 +215,7 @@ export default function AdminDashboard() {
                 <td className="py-3 pr-4 font-medium text-white">{item.fullName}</td>
                 <td className="py-3 pr-4">{item.email}</td>
                 <td className="py-3 pr-4">{item.phone}</td>
+                <td className="py-3 pr-4 text-xs">{item.program || "—"}</td>
                 <td className="py-3 pr-4 capitalize">
                   <span className="badge bg-blue-500/10 text-blue-400 border border-blue-500/20">{item.experienceLevel}</span>
                 </td>

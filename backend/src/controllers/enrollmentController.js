@@ -7,9 +7,9 @@ const TABLE = process.env.DYNAMODB_ENROLLMENTS_TABLE;
 
 const createEnrollment = async (req, res) => {
   try {
-    const { fullName, email, phone, experienceLevel, preferredDate } = req.body;
+    const { fullName, email, phone, program, experienceLevel, preferredDate } = req.body;
     const item = {
-      id: uuidv4(), fullName, email, phone, experienceLevel, preferredDate,
+      id: uuidv4(), fullName, email, phone, program, experienceLevel, preferredDate,
       status: "pending", createdAt: new Date().toISOString(),
     };
     await docClient.send(new PutCommand({ TableName: TABLE, Item: item }));

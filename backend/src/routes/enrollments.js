@@ -8,6 +8,7 @@ const enrollmentRules = [
   body("fullName").trim().notEmpty().withMessage("Full name is required"),
   body("email").isEmail().withMessage("Valid email is required"),
   body("phone").trim().notEmpty().withMessage("Phone number is required"),
+  body("program").isIn(["Cloud Engineering Foundations", "Web Development"]).withMessage("Invalid program"),
   body("experienceLevel").isIn(["beginner", "intermediate", "advanced"]).withMessage("Invalid experience level"),
   body("preferredDate").notEmpty().withMessage("Preferred date is required"),
 ];

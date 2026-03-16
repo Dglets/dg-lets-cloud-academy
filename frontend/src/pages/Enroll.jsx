@@ -8,6 +8,7 @@ const initialValues = {
   fullName: "",
   email: "",
   phone: "",
+  program: "",
   experienceLevel: "",
   preferredDate: "",
 };
@@ -17,6 +18,7 @@ const validate = (values) => {
   if (!values.fullName.trim()) errors.fullName = "Full name is required";
   if (!values.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errors.email = "Valid email is required";
   if (!values.phone.trim()) errors.phone = "Phone number is required";
+  if (!values.program) errors.program = "Please select a program";
   if (!values.experienceLevel) errors.experienceLevel = "Please select your experience level";
   if (!values.preferredDate) errors.preferredDate = "Please select a preferred date";
   return errors;
@@ -35,10 +37,10 @@ export default function Enroll() {
     setApiError("");
     try {
       await enrollmentAPI.submit(values);
-      const snapshot = { fullName: values.fullName, email: values.email, phone: values.phone };
+      const snapshot = { fullName: values.fullName, email: values.email, phone: values.phone, program: values.program };
       setSuccess(true);
       reset();
-      setTimeout(() => navigate("/payment", { state: { ...snapshot, program: "Cloud Engineering Foundations" } }), 2000);
+      setTimeout(() => navigate("/payment", { state: snapshot }), 2000);
     } catch (err) {
       setApiError(err.response?.data?.error || "Something went wrong. Please try again.");
     } finally {
@@ -69,7 +71,7 @@ export default function Enroll() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <span className="badge bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">Student Enrollment</span>
-            <h1 className="section-title text-4xl mt-2">Enroll in Cloud Engineering Foundations</h1>
+            <h1 className="section-title text-4xl mt-2">Enroll in a Program</h1>
             <p className="section-subtitle mx-auto mt-3">
               Fill out the form below to apply for the next cohort. We'll be in touch shortly.
             </p>
@@ -78,6 +80,14 @@ export default function Enroll() {
           <div className="card">
             <Alert type="error" message={apiError} />
             <form onSubmit={handleSubmit} className="space-y-5 mt-2">
+              <FormField label="Program" error={errors.program} required>
+                <select name="program" value={values.program} onChange={handleChange} className="input-field">
+                  <option value="">Select a program</option>
+                  <option value="Cloud Engineering Foundations">Cloud Engineering Foundations — ₦65,000</option>
+                  <option value="Web Development">Web Development Bootcamp — ₦50,000</option>
+                </select>
+              </FormField>
+
               <FormField label="Full Name" error={errors.fullName} required>
                 <input
                   type="text"

@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { PutCommand, GetCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
 const { docClient } = require("../config/dynamodb");
+const { sendPortalAccessGranted } = require("../services/emailService");
 
 const ENROLLMENTS_TABLE = process.env.DYNAMODB_ENROLLMENTS_TABLE;
 const STUDENTS_TABLE = process.env.DYNAMODB_STUDENTS_TABLE;
@@ -25,6 +26,7 @@ const grantStudentAccess = async (req, res) => {
       accessGrantedAt: new Date().toISOString(),
     };
     await docClient.send(new PutCommand({ TableName: STUDENTS_TABLE, Item: student }));
+    sendPortalAccessGranted(student, password);
     res.status(201).json({ message: "Access granted successfully" });
   } catch (err) {
     console.error("grantStudentAccess error:", err);
