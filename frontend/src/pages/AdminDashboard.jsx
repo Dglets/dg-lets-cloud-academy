@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI } from "../utils/api";
 
-const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students"];
+const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments"];
 
 const statusColors = {
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -13,10 +13,12 @@ const statusColors = {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Enrollments");
-  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [] });
+  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [] });
   const [loading, setLoading] = useState(true);
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
+  const [assignmentForm, setAssignmentForm] = useState({ title: "", description: "", dueDate: "", program: "All" });
+  const [showAssignmentForm, setShowAssignmentForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modal, setModal] = useState(null);
   const [grantModal, setGrantModal] = useState(null);
@@ -34,13 +36,14 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [enrollments, partnerships, contacts, blogs, notifications, students] = await Promise.all([
+      const [enrollments, partnerships, contacts, blogs, notifications, students, assignments] = await Promise.all([
         enrollmentAPI.getAll(),
         partnershipAPI.getAll(),
         contactAPI.getAll(),
         blogAPI.getAll(),
         notificationAPI.getAll(),
         studentAPI.getAll(),
+        studentAPI.getAssignments(),
       ]);
       setData({
         Enrollments: enrollments.data || [],
@@ -49,6 +52,7 @@ export default function AdminDashboard() {
         Blogs: blogs.data || [],
         Notifications: notifications.data || [],
         Students: students.data || [],
+        Assignments: assignments.data || [],
       });
     } catch {
       navigate("/admin");
@@ -104,6 +108,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const createAssignment = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await studentAPI.createAssignment(assignmentForm);
+      setAssignmentForm({ title: "", description: "", dueDate: "", program: "All" });
+      setShowAssignmentForm(false);
+      await fetchAll();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deleteAssignment = async (id) => {
+    if (!window.confirm("Delete this assignment?")) return;
+    await studentAPI.deleteAssignment(id);
+    setData((prev) => ({ ...prev, Assignments: prev.Assignments.filter((a) => a.id !== id) }));
+  };
+
   const formatDate = (iso) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   const renderTable = () => {
@@ -112,6 +135,7 @@ export default function AdminDashboard() {
     if (activeTab === "Blogs") return renderBlogs();
     if (activeTab === "Notifications") return renderNotifications();
     if (activeTab === "Students") return renderStudents();
+    if (activeTab === "Assignments") return renderAssignments();
     if (items.length === 0) return <div className="text-center text-slate-400 py-12">No {activeTab.toLowerCase()} yet.</div>;
 
     if (activeTab === "Enrollments") return (
@@ -227,6 +251,63 @@ export default function AdminDashboard() {
       </div>
     );
   };
+
+  const renderAssignments = () => (
+    <div>
+      <div className="flex justify-end mb-4">
+        <button onClick={() => setShowAssignmentForm((v) => !v)} className="btn-primary text-sm py-2 px-4">
+          {showAssignmentForm ? "Cancel" : "+ New Assignment"}
+        </button>
+      </div>
+      {showAssignmentForm && (
+        <form onSubmit={createAssignment} className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input required placeholder="Title" value={assignmentForm.title}
+              onChange={(e) => setAssignmentForm((f) => ({ ...f, title: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            <select value={assignmentForm.program}
+              onChange={(e) => setAssignmentForm((f) => ({ ...f, program: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full">
+              <option value="All">All Programs</option>
+              <option value="Cloud Engineering Foundations">Cloud Engineering</option>
+              <option value="Web Development">Web Development</option>
+            </select>
+          </div>
+          <input type="date" placeholder="Due Date" value={assignmentForm.dueDate}
+            onChange={(e) => setAssignmentForm((f) => ({ ...f, dueDate: e.target.value }))}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+          <textarea required rows={4} placeholder="Assignment description..." value={assignmentForm.description}
+            onChange={(e) => setAssignmentForm((f) => ({ ...f, description: e.target.value }))}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full resize-none" />
+          <button type="submit" disabled={submitting} className="btn-primary text-sm py-2 px-6">
+            {submitting ? "Posting..." : "Post Assignment"}
+          </button>
+        </form>
+      )}
+      {data.Assignments.length === 0 ? (
+        <div className="text-center text-slate-400 py-12">No assignments yet.</div>
+      ) : (
+        <div className="space-y-3">
+          {data.Assignments.map((a) => (
+            <div key={a.id} className="flex items-start justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+              <div>
+                <div className="text-white font-medium">{a.title}</div>
+                <div className="text-slate-400 text-xs mt-1">
+                  {a.program} · {formatDate(a.createdAt)}
+                  {a.dueDate && <span className="text-yellow-400 ml-2">· Due: {a.dueDate}</span>}
+                </div>
+                <p className="text-slate-500 text-xs mt-1 line-clamp-2">{a.description}</p>
+              </div>
+              <button onClick={() => deleteAssignment(a.id)}
+                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 ml-4 flex-shrink-0 transition-colors">
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   const renderStudents = () => {
     const items = data.Students;
