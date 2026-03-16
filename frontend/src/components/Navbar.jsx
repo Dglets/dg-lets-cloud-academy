@@ -9,6 +9,7 @@ const links = [
   { to: "/coming-soon", label: "Coming Soon" },
   { to: "/blog", label: "Blog" },
   { to: "/contact", label: "Contact" },
+  { to: "/student", label: "Student Portal" },
 ];
 
 export default function Navbar() {

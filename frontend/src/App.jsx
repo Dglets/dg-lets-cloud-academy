@@ -13,9 +13,11 @@ import AdminLogin from "./pages/AdminLogin";
 import ComingSoon from "./pages/ComingSoon";
 import WebDevelopment from "./pages/WebDevelopment";
 import AdminDashboard from "./pages/AdminDashboard";
+import StudentLogin from "./pages/StudentLogin";
+import StudentDashboard from "./pages/StudentDashboard";
 import NotFound from "./pages/NotFound";
 
-const noFooterRoutes = ["/admin", "/admin/dashboard"];
+const noFooterRoutes = ["/admin", "/admin/dashboard", "/student", "/student/dashboard"];
 
 function Layout({ children, pathname }) {
   const showFooter = !noFooterRoutes.includes(pathname);
@@ -43,6 +45,8 @@ export default function App() {
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
         <Route path="/admin" element={<Layout><AdminLogin /></Layout>} />
         <Route path="/admin/dashboard" element={<Layout><AdminDashboard /></Layout>} />
+        <Route path="/student" element={<Layout><StudentLogin /></Layout>} />
+        <Route path="/student/dashboard" element={<Layout><StudentDashboard /></Layout>} />
         <Route path="*" element={<Layout><NotFound /></Layout>} />
       </Routes>
       <AiAssistant />

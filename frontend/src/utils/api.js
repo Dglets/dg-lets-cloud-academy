@@ -33,6 +33,22 @@ export const contactAPI = {
   getAll: () => api.get("/contacts"),
 };
 
+export const studentAPI = {
+  login: (data) => api.post("/students/login", data),
+  getProfile: () => api.get("/students/profile"),
+  getAssignments: () => api.get("/students/assignments"),
+  getTests: () => api.get("/students/tests"),
+  getTutorials: () => api.get("/students/tutorials"),
+  grantAccess: (data) => api.post("/students/grant-access", data),
+  getAll: () => api.get("/students/all"),
+  createAssignment: (data) => api.post("/students/assignments", data),
+  deleteAssignment: (id) => api.delete(`/students/assignments/${id}`),
+  createTest: (data) => api.post("/students/tests", data),
+  deleteTest: (id) => api.delete(`/students/tests/${id}`),
+  createTutorial: (data) => api.post("/students/tutorials", data),
+  deleteTutorial: (id) => api.delete(`/students/tutorials/${id}`),
+};
+
 export const notificationAPI = {
   subscribe: (data) => api.post("/notifications", data),
   getAll: () => api.get("/notifications"),
