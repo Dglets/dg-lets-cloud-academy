@@ -70,6 +70,10 @@ export default function AdminDashboard() {
       });
     } catch (err) {
       console.error("fetchAll error:", err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem("admin_token");
+        navigate("/admin");
+      }
     } finally {
       setLoading(false);
     }

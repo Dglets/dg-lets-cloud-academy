@@ -42,6 +42,11 @@ export default function InstructorDashboard() {
       setGrades(g.data || []);
     } catch (err) {
       console.error("fetchAll error:", err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem("instructor_token");
+        localStorage.removeItem("instructor_info");
+        navigate("/instructor");
+      }
     } finally {
       setLoading(false);
     }
@@ -74,7 +79,13 @@ export default function InstructorDashboard() {
       setGradeMsg("success");
       await fetchAll();
     } catch (err) {
-      setGradeMsg(err.response?.data?.error || "Failed to submit grade");
+      if (err.response?.status === 401) {
+        localStorage.removeItem("instructor_token");
+        localStorage.removeItem("instructor_info");
+        navigate("/instructor");
+      } else {
+        setGradeMsg(err.response?.data?.error || "Failed to submit grade");
+      }
     } finally {
       setSubmitting(false);
     }
