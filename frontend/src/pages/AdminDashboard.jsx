@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI } from "../utils/api";
 
-const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests"];
+const tabs = ["Enrollments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests", "Tutorials"];
 
 const statusColors = {
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -13,7 +13,7 @@ const statusColors = {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Enrollments");
-  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [] });
+  const [data, setData] = useState({ Enrollments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [], Tutorials: [] });
   const [loading, setLoading] = useState(true);
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
@@ -21,6 +21,8 @@ export default function AdminDashboard() {
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
   const [testForm, setTestForm] = useState({ title: "", description: "", duration: "", link: "", program: "All" });
   const [showTestForm, setShowTestForm] = useState(false);
+  const [tutorialForm, setTutorialForm] = useState({ title: "", description: "", videoUrl: "", duration: "", week: "", program: "All" });
+  const [showTutorialForm, setShowTutorialForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modal, setModal] = useState(null);
   const [grantModal, setGrantModal] = useState(null);
@@ -38,7 +40,7 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [enrollments, partnerships, contacts, blogs, notifications, students, assignments, tests] = await Promise.all([
+      const [enrollments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials] = await Promise.all([
         enrollmentAPI.getAll(),
         partnershipAPI.getAll(),
         contactAPI.getAll(),
@@ -47,6 +49,7 @@ export default function AdminDashboard() {
         studentAPI.getAll(),
         studentAPI.getAssignments(),
         studentAPI.getTests(),
+        studentAPI.getTutorials(),
       ]);
       setData({
         Enrollments: enrollments.data || [],
@@ -57,6 +60,7 @@ export default function AdminDashboard() {
         Students: students.data || [],
         Assignments: assignments.data || [],
         Tests: tests.data || [],
+        Tutorials: tutorials.data || [],
       });
     } catch {
       navigate("/admin");
@@ -150,6 +154,25 @@ export default function AdminDashboard() {
     setData((prev) => ({ ...prev, Tests: prev.Tests.filter((t) => t.id !== id) }));
   };
 
+  const createTutorial = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await studentAPI.createTutorial(tutorialForm);
+      setTutorialForm({ title: "", description: "", videoUrl: "", duration: "", week: "", program: "All" });
+      setShowTutorialForm(false);
+      await fetchAll();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deleteTutorial = async (id) => {
+    if (!window.confirm("Delete this tutorial?")) return;
+    await studentAPI.deleteTutorial(id);
+    setData((prev) => ({ ...prev, Tutorials: prev.Tutorials.filter((t) => t.id !== id) }));
+  };
+
   const formatDate = (iso) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   const renderTable = () => {
@@ -160,6 +183,7 @@ export default function AdminDashboard() {
     if (activeTab === "Students") return renderStudents();
     if (activeTab === "Assignments") return renderAssignments();
     if (activeTab === "Tests") return renderTests();
+    if (activeTab === "Tutorials") return renderTutorials();
     if (items.length === 0) return <div className="text-center text-slate-400 py-12">No {activeTab.toLowerCase()} yet.</div>;
 
     if (activeTab === "Enrollments") return (
@@ -275,6 +299,72 @@ export default function AdminDashboard() {
       </div>
     );
   };
+
+  const renderTutorials = () => (
+    <div>
+      <div className="flex justify-end mb-4">
+        <button onClick={() => setShowTutorialForm((v) => !v)} className="btn-primary text-sm py-2 px-4">
+          {showTutorialForm ? "Cancel" : "+ Upload Tutorial"}
+        </button>
+      </div>
+      {showTutorialForm && (
+        <form onSubmit={createTutorial} className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input required placeholder="Tutorial Title" value={tutorialForm.title}
+              onChange={(e) => setTutorialForm((f) => ({ ...f, title: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            <select value={tutorialForm.program}
+              onChange={(e) => setTutorialForm((f) => ({ ...f, program: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full">
+              <option value="All">All Programs</option>
+              <option value="Cloud Engineering Foundations">Cloud Engineering</option>
+              <option value="Web Development">Web Development</option>
+            </select>
+          </div>
+          <input required placeholder="Video URL (YouTube or direct link)" value={tutorialForm.videoUrl}
+            onChange={(e) => setTutorialForm((f) => ({ ...f, videoUrl: e.target.value }))}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input placeholder="Week (e.g. 1)" value={tutorialForm.week}
+              onChange={(e) => setTutorialForm((f) => ({ ...f, week: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+            <input placeholder="Duration (e.g. 45 mins)" value={tutorialForm.duration}
+              onChange={(e) => setTutorialForm((f) => ({ ...f, duration: e.target.value }))}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+          </div>
+          <input placeholder="Short description (optional)" value={tutorialForm.description}
+            onChange={(e) => setTutorialForm((f) => ({ ...f, description: e.target.value }))}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500 w-full" />
+          <button type="submit" disabled={submitting} className="btn-primary text-sm py-2 px-6">
+            {submitting ? "Uploading..." : "Upload Tutorial"}
+          </button>
+        </form>
+      )}
+      {data.Tutorials.length === 0 ? (
+        <div className="text-center text-slate-400 py-12">No tutorials yet.</div>
+      ) : (
+        <div className="space-y-3">
+          {data.Tutorials.map((t) => (
+            <div key={t.id} className="flex items-start justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+              <div>
+                <div className="text-white font-medium">{t.title}</div>
+                <div className="text-slate-400 text-xs mt-1">
+                  {t.program}{t.week && ` · Week ${t.week}`} · {formatDate(t.createdAt)}
+                  {t.duration && <span className="text-purple-400 ml-2">· {t.duration}</span>}
+                </div>
+                {t.description && <p className="text-slate-500 text-xs mt-1">{t.description}</p>}
+                <a href={t.videoUrl} target="_blank" rel="noreferrer" className="text-blue-400 text-xs mt-1 hover:underline">View Video ↗</a>
+              </div>
+              <button onClick={() => deleteTutorial(t.id)}
+                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded px-3 py-1 ml-4 flex-shrink-0 transition-colors">
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   const renderTests = () => (
     <div>
