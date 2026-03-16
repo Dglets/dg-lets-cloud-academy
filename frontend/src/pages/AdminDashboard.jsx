@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI, paymentAPI } from "../utils/api";
+import { enrollmentAPI, partnershipAPI, contactAPI, blogAPI, notificationAPI, studentAPI, paymentAPI, instructorAPI } from "../utils/api";
 
-const tabs = ["Enrollments", "Payments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests", "Tutorials"];
+const tabs = ["Enrollments", "Payments", "Partnerships", "Contacts", "Blogs", "Notifications", "Students", "Assignments", "Tests", "Tutorials", "Instructors"];
 
 const statusColors = {
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -13,7 +13,9 @@ const statusColors = {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Enrollments");
-  const [data, setData] = useState({ Enrollments: [], Payments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [], Tutorials: [] });
+  const [data, setData] = useState({ Enrollments: [], Payments: [], Partnerships: [], Contacts: [], Blogs: [], Notifications: [], Students: [], Assignments: [], Tests: [], Tutorials: [], Instructors: [] });
+  const [instructorForm, setInstructorForm] = useState({ fullName: "", email: "", password: "", subject: "" });
+  const [showInstructorForm, setShowInstructorForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [blogForm, setBlogForm] = useState({ title: "", category: "", excerpt: "", content: "" });
   const [showBlogForm, setShowBlogForm] = useState(false);
@@ -40,7 +42,7 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [enrollments, payments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials] = await Promise.all([
+      const [enrollments, payments, partnerships, contacts, blogs, notifications, students, assignments, tests, tutorials, instructors] = await Promise.all([
         enrollmentAPI.getAll(),
         paymentAPI.getAll(),
         partnershipAPI.getAll(),
@@ -51,6 +53,7 @@ export default function AdminDashboard() {
         studentAPI.getAssignments(),
         studentAPI.getTests(),
         studentAPI.getTutorials(),
+        instructorAPI.getAll(),
       ]);
       setData({
         Enrollments: enrollments.data || [],
@@ -63,9 +66,10 @@ export default function AdminDashboard() {
         Assignments: assignments.data || [],
         Tests: tests.data || [],
         Tutorials: tutorials.data || [],
+        Instructors: instructors.data || [],
       });
-    } catch {
-      navigate("/admin");
+    } catch (err) {
+      console.error("fetchAll error:", err);
     } finally {
       setLoading(false);
     }
@@ -187,6 +191,7 @@ export default function AdminDashboard() {
     if (activeTab === "Assignments") return renderAssignments();
     if (activeTab === "Tests") return renderTests();
     if (activeTab === "Tutorials") return renderTutorials();
+    if (activeTab === "Instructors") return renderInstructors();
     if (items.length === 0) return <div className="text-center text-slate-400 py-12">No {activeTab.toLowerCase()} yet.</div>;
 
     if (activeTab === "Enrollments") return (

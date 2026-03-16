@@ -5,7 +5,15 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("admin_token");
+  const url = config.url || "";
+  let token;
+  if (url.startsWith("/instructors")) {
+    token = localStorage.getItem("instructor_token");
+  } else if (url.startsWith("/students")) {
+    token = localStorage.getItem("student_token") || localStorage.getItem("admin_token");
+  } else {
+    token = localStorage.getItem("admin_token");
+  }
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -62,6 +70,17 @@ export const notificationAPI = {
 
 export const adminAPI = {
   login: (data) => api.post("/admin/login", data),
+};
+
+export const instructorAPI = {
+  login: (data) => api.post("/instructors/login", data),
+  getAll: () => api.get("/instructors"),
+  create: (data) => api.post("/instructors", data),
+  delete: (id) => api.delete(`/instructors/${id}`),
+  submitGrade: (data) => api.post("/instructors/grades", data),
+  getGrades: () => api.get("/instructors/grades"),
+  getStudentGrades: (studentId) => api.get(`/instructors/grades/student/${studentId}`),
+  getAllGrades: () => api.get("/instructors/grades/all"),
 };
 
 export default api;
