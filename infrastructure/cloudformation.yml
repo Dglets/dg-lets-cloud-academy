@@ -12,74 +12,16 @@ Parameters:
     Description: JWT secret for admin authentication
   AdminEmail:
     Type: String
-    Description: Admin email address
+    Description: Admin email address (must be verified in SES)
   AdminPassword:
     Type: String
     NoEcho: true
     Description: Admin password (plain text - use hashed in production)
+  SesFromEmail:
+    Type: String
+    Description: Verified SES sender email address
 
 Resources:
-  # ─── DynamoDB Tables ───────────────────────────────────────────────────────
-  EnrollmentsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: dg-lets-enrollments
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-
-  PartnershipsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: dg-lets-partnerships
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-
-  BlogsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: dg-lets-blogs
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-
-  ContactsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: dg-lets-contacts
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-
-  NotificationsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: dg-lets-notifications
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-
   # ─── S3 Bucket for Frontend ────────────────────────────────────────────────
   FrontendBucket:
     Type: AWS::S3::Bucket
@@ -154,11 +96,26 @@ Resources:
                   - dynamodb:DeleteItem
                   - dynamodb:UpdateItem
                 Resource:
-                  - !GetAtt EnrollmentsTable.Arn
-                  - !GetAtt PartnershipsTable.Arn
-                  - !GetAtt BlogsTable.Arn
-                  - !GetAtt ContactsTable.Arn
-                  - !GetAtt NotificationsTable.Arn
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-enrollments"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-partnerships"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-blogs"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-contacts"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-notifications"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-payments"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-students"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-instructors"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-grades"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-assignments"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-tests"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-tutorials"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/dg-lets-admins"
+        - PolicyName: SESAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: ses:SendEmail
+                Resource: "*"
 
   # ─── Lambda Function ───────────────────────────────────────────────────────
   ApiLambdaFunction:
@@ -179,9 +136,15 @@ Resources:
           DYNAMODB_BLOGS_TABLE: dg-lets-blogs
           DYNAMODB_CONTACTS_TABLE: dg-lets-contacts
           DYNAMODB_NOTIFICATIONS_TABLE: dg-lets-notifications
+          DYNAMODB_PAYMENTS_TABLE: dg-lets-payments
+          DYNAMODB_STUDENTS_TABLE: dg-lets-students
+          DYNAMODB_INSTRUCTORS_TABLE: dg-lets-instructors
+          DYNAMODB_GRADES_TABLE: dg-lets-grades
           JWT_SECRET: !Ref JwtSecret
           ADMIN_EMAIL: !Ref AdminEmail
           ADMIN_PASSWORD: !Ref AdminPassword
+          SES_FROM_EMAIL: !Ref SesFromEmail
+          FRONTEND_URL: !Sub "https://${CloudFrontDistribution.DomainName}"
       Code:
         ZipFile: |
           exports.handler = async (event) => ({

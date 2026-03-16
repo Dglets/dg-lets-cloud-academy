@@ -38,6 +38,36 @@ const tables = [
     AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
     BillingMode: "PAY_PER_REQUEST",
   },
+  {
+    TableName: "dg-lets-payments",
+    KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+    AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+    BillingMode: "PAY_PER_REQUEST",
+  },
+  {
+    TableName: "dg-lets-students",
+    KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+    AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+    BillingMode: "PAY_PER_REQUEST",
+  },
+  {
+    TableName: "dg-lets-instructors",
+    KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+    AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+    BillingMode: "PAY_PER_REQUEST",
+  },
+  {
+    TableName: "dg-lets-grades",
+    KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+    AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+    BillingMode: "PAY_PER_REQUEST",
+  },
+  {
+    TableName: "dg-lets-notifications",
+    KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+    AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+    BillingMode: "PAY_PER_REQUEST",
+  },
 ];
 
 async function setup() {
