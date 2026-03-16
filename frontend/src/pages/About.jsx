@@ -1,16 +1,19 @@
 import { Link } from "react-router-dom";
 
 const milestones = [
-  { year: "2023", event: "Started learning cloud computing fundamentals and web development." },
-  { year: "2024", event: "Completed AWS Cloud Practitioner training — understanding core AWS services, pricing, and architecture." },
-  { year: "2024", event: "Founded DG-LETS Cloud Academy to share cloud knowledge and help others break into tech." },
-  { year: "2025", event: "Actively upskilling toward AWS Solutions Architect certification." },
-  { year: "Future", event: "Build a full cloud training ecosystem with startup partnerships and certification programs." },
+  { year: "2006", event: "First introduced to computers at Air Force Nursery and Primary School, Oloje, Ilorin, Kwara State — curiosity sparked." },
+  { year: "2010s", event: "Secondary school deepened my understanding of computers and technology fundamentals." },
+  { year: "2023", event: "Completed a Diploma in Computer Studies, then began learning web development — starting with frontend." },
+  { year: "2024", event: "Expanded into backend development and cloud computing, building full-stack skills." },
+  { year: "2025", event: "Went deeper into cloud — studying AWS architecture, serverless, and cloud infrastructure." },
+  { year: "2026", event: "Earned AWS Cloud Practitioner certificate from AWS Skill Builder and Cloud Engineer certificate from Skulltech under Seyi Tinubu's 10,000 On-Demand Tech Skill Initiative." },
+  { year: "2026", event: "Built DG-LETS AGRI AND TECH — a platform integrating technology into agriculture using web dev and cloud skills." },
+  { year: "Now", event: "Running DG-LETS Cloud Academy — training others in cloud and tech at affordable prices, driven by a passion for teaching." },
 ];
 
 const values = [
   { icon: "🎯", title: "Practical First", desc: "Every concept is taught through real-world application, not just slides." },
-  { icon: "🌱", title: "Accessible Learning", desc: "Cloud education should be available to everyone, regardless of background." },
+  { icon: "🌱", title: "Accessible Learning", desc: "Cloud education should be available to everyone, regardless of background or budget." },
   { icon: "🤝", title: "Community Driven", desc: "Learning is better together — we build a network, not just a course." },
   { icon: "📈", title: "Career Focused", desc: "Every lesson is designed with your career outcome in mind." },
 ];
@@ -24,7 +27,7 @@ export default function About() {
           <span className="badge bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">About the Instructor</span>
           <h1 className="section-title text-5xl mt-2">My Cloud Journey</h1>
           <p className="section-subtitle mx-auto mt-4">
-            From curious learner to cloud instructor — here's the story behind DG-LETS Cloud Academy.
+            From a curious primary school student in Ilorin to a certified cloud engineer and educator — here's the story behind DG-LETS Cloud Academy.
           </p>
         </div>
       </section>
@@ -35,19 +38,22 @@ export default function About() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <div className="space-y-6 text-slate-300 leading-relaxed">
               <p>
-                My journey into cloud computing started with a simple question: <em className="text-blue-400">"How does the internet actually work at scale?"</em> That curiosity led me down a path of learning AWS, understanding distributed systems, and discovering the power of cloud infrastructure.
+                My curiosity about computers started around <em className="text-blue-400">2006</em>, when I was first introduced to them at <strong className="text-white">Air Force Nursery and Primary School, Oloje, Ilorin, Kwara State</strong>. That early exposure planted a seed that never stopped growing.
               </p>
               <p>
-                I completed my <strong className="text-white">AWS Cloud Practitioner training</strong>, which gave me a solid foundation in cloud concepts — from core services like EC2, S3, and Lambda, to understanding cloud economics, security, and the shared responsibility model.
+                Through secondary school, I kept learning — building on the fundamentals and developing a genuine love for technology. In <strong className="text-white">2023</strong>, I formalized that passion by completing a <strong className="text-white">Diploma in Computer Studies</strong>, then immediately dove into web development, starting with the frontend.
               </p>
               <p>
-                But I didn't stop there. I'm constantly upskilling, working toward my <strong className="text-white">AWS Solutions Architect certification</strong> — learning how to design resilient, scalable, and cost-optimized cloud architectures.
+                By <strong className="text-white">2024/2025</strong>, I had expanded into backend development and cloud computing — learning how to build full systems from the interface all the way to the infrastructure that powers them.
               </p>
               <p>
-                I also bring <strong className="text-white">web development skills</strong> to the table, which means I understand the full stack — from frontend interfaces to backend APIs to the cloud infrastructure that powers them all.
+                In <strong className="text-white">2026</strong>, I earned two certifications: an <strong className="text-white">AWS Cloud Practitioner</strong> certificate from AWS Skill Builder, and a <strong className="text-white">Cloud Engineer</strong> certificate from Skulltech — part of <em className="text-blue-400">Seyi Tinubu's 10,000 On-Demand Tech Skill Initiative</em>.
               </p>
               <p>
-                DG-LETS Cloud Academy was born from a desire to <strong className="text-white">democratize cloud education</strong> — to give aspiring engineers the practical, structured training they need to land real cloud jobs and build real cloud products.
+                I also built <strong className="text-white">DG-LETS AGRI AND TECH</strong> — a platform that combines my web development and cloud skills to integrate technology into agriculture, solving real problems with real tools.
+              </p>
+              <p>
+                But beyond building, I'm driven by a deep passion for <strong className="text-white">teaching and imparting knowledge</strong>. With experience as an educator and a belief that tech should be accessible to all, I built this platform to train others at affordable prices — so more people can benefit from the tech world the way I have.
               </p>
             </div>
 
@@ -57,7 +63,7 @@ export default function About() {
                 <div key={i} className="flex gap-4">
                   <div className="flex flex-col items-center">
                     <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                      {year === "Future" ? "🚀" : year.slice(2)}
+                      {year === "Now" ? "🚀" : year === "2010s" ? "10s" : year.slice(2)}
                     </div>
                     {i < milestones.length - 1 && <div className="w-0.5 h-full bg-slate-700 mt-2" />}
                   </div>
@@ -93,25 +99,33 @@ export default function About() {
         </div>
       </section>
 
-      {/* AWS Credentials */}
+      {/* Certifications */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="card border-blue-500/20 text-center">
-            <div className="text-5xl mb-4">🏅</div>
-            <h3 className="text-white font-bold text-2xl mb-2">AWS Cloud Practitioner</h3>
-            <p className="text-slate-400 mb-6">
-              Certified in AWS fundamentals — cloud concepts, core services, security, architecture, pricing, and support.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {["AWS EC2", "Amazon S3", "AWS Lambda", "DynamoDB", "CloudFront", "IAM", "API Gateway", "CloudFormation"].map((skill) => (
-                <span key={skill} className="badge bg-blue-500/10 text-blue-300 border border-blue-500/20 text-xs px-3 py-1">
-                  {skill}
-                </span>
-              ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="card border-blue-500/20 text-center">
+              <div className="text-5xl mb-4">🏅</div>
+              <h3 className="text-white font-bold text-xl mb-2">AWS Cloud Practitioner</h3>
+              <p className="text-slate-400 text-sm mb-4">Issued by AWS Skill Builder — covering cloud concepts, core services, security, architecture, pricing, and support.</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {["EC2", "S3", "Lambda", "DynamoDB", "CloudFront", "IAM", "API Gateway", "CloudFormation"].map((s) => (
+                  <span key={s} className="badge bg-blue-500/10 text-blue-300 border border-blue-500/20 text-xs px-3 py-1">{s}</span>
+                ))}
+              </div>
             </div>
-            <div className="mt-8">
-              <Link to="/enroll" className="btn-primary">Learn These Skills With Me</Link>
+            <div className="card border-purple-500/20 text-center">
+              <div className="text-5xl mb-4">🎓</div>
+              <h3 className="text-white font-bold text-xl mb-2">Cloud Engineer</h3>
+              <p className="text-slate-400 text-sm mb-4">Issued by Skulltech under Seyi Tinubu's <em className="text-purple-400">10,000 On-Demand Tech Skill Initiative</em> — hands-on cloud engineering training.</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {["Cloud Architecture", "AWS Services", "Serverless", "DevOps", "Infrastructure", "Security"].map((s) => (
+                  <span key={s} className="badge bg-purple-500/10 text-purple-300 border border-purple-500/20 text-xs px-3 py-1">{s}</span>
+                ))}
+              </div>
             </div>
+          </div>
+          <div className="mt-10 text-center">
+            <Link to="/enroll" className="btn-primary">Start Your Own Journey</Link>
           </div>
         </div>
       </section>

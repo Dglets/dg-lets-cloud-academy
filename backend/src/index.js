@@ -23,6 +23,11 @@ app.use(express.json());
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use("/api/", limiter);
 
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: "Too many login attempts, please try again later" } });
+app.use("/api/admin/login", loginLimiter);
+app.use("/api/students/login", loginLimiter);
+app.use("/api/instructors/login", loginLimiter);
+
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/partnerships", partnershipRoutes);
 app.use("/api/blogs", blogRoutes);
