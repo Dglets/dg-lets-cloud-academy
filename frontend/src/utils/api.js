@@ -50,6 +50,7 @@ export const paymentAPI = {
 export const studentAPI = {
   login: (data) => api.post("/students/login", data),
   getProfile: () => api.get("/students/profile"),
+  getGrades: () => api.get("/students/grades"),
   getAssignments: () => api.get("/students/assignments"),
   getTests: () => api.get("/students/tests"),
   getTutorials: () => api.get("/students/tutorials"),

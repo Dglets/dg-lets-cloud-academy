@@ -18,6 +18,7 @@ import StudentLogin from "./pages/StudentLogin";
 import StudentDashboard from "./pages/StudentDashboard";
 import InstructorLogin from "./pages/InstructorLogin";
 import InstructorDashboard from "./pages/InstructorDashboard";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const noFooterRoutes = ["/admin", "/admin/dashboard", "/instructor", "/instructor/dashboard"];
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/enroll" element={<Layout pathname="/enroll"><Enroll /></Layout>} />
         <Route path="/partner" element={<Layout pathname="/partner"><Partner /></Layout>} />
         <Route path="/blog" element={<Layout pathname="/blog"><Blog /></Layout>} />
+        <Route path="/blog/:id" element={<Layout pathname="/blog/:id"><BlogPost /></Layout>} />
         <Route path="/coming-soon" element={<Layout pathname="/coming-soon"><ComingSoon /></Layout>} />
         <Route path="/web-development" element={<Layout pathname="/web-development"><WebDevelopment /></Layout>} />
         <Route path="/payment" element={<Layout pathname="/payment"><Payment /></Layout>} />

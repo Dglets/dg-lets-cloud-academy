@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { studentAPI } from "../utils/api";
 
-const tabs = ["Profile", "Assignments", "Tests", "Tutorials"];
+const tabs = ["Profile", "Assignments", "Tests", "Tutorials", "Grades"];
 
 export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -10,6 +10,7 @@ export default function StudentDashboard() {
   const [assignments, setAssignments] = useState([]);
   const [tests, setTests] = useState([]);
   const [tutorials, setTutorials] = useState([]);
+  const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const navigate = useNavigate();
@@ -23,16 +24,18 @@ export default function StudentDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [p, a, t, tu] = await Promise.all([
+      const [p, a, t, tu, g] = await Promise.all([
         studentAPI.getProfile(),
         studentAPI.getAssignments(),
         studentAPI.getTests(),
         studentAPI.getTutorials(),
+        studentAPI.getGrades(),
       ]);
       setProfile(p.data);
       setAssignments(a.data || []);
       setTests(t.data || []);
       setTutorials(tu.data || []);
+      setGrades(g.data || []);
     } catch (err) {
       console.error("fetchAll error:", err);
       if (err.response?.status === 401) navigate("/student");
@@ -92,7 +95,7 @@ export default function StudentDashboard() {
             { label: "Assignments", value: assignments.length, color: "text-orange-400" },
             { label: "Tests", value: tests.length, color: "text-red-400" },
             { label: "Tutorials", value: tutorials.length, color: "text-purple-400" },
-            { label: "Program", value: profile?.experienceLevel, color: "text-blue-400" },
+            { label: "Grades", value: grades.length, color: "text-green-400" },
           ].map(({ label, value, color }) => (
             <div key={label} className="card text-center">
               <div className={`text-2xl font-bold capitalize ${color}`}>{value}</div>
@@ -225,6 +228,58 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+          {/* Grades Tab */}
+          {activeTab === "Grades" && (
+            <div>
+              {grades.length === 0 ? (
+                <div className="text-center text-slate-400 py-12">No grades recorded yet.</div>
+              ) : (
+                <div className="space-y-3">
+                  {(() => {
+                    const avg = Math.round(grades.reduce((acc, g) => acc + (g.score / g.maxScore) * 100, 0) / grades.length);
+                    const color = avg >= 70 ? "text-green-400" : avg >= 50 ? "text-yellow-400" : "text-red-400";
+                    return (
+                      <div className="p-4 bg-slate-800/50 border border-slate-700 rounded-xl mb-4 flex items-center justify-between">
+                        <span className="text-slate-400 text-sm">Overall Average</span>
+                        <span className={`text-2xl font-bold ${color}`}>{avg}%</span>
+                      </div>
+                    );
+                  })()}
+                  {grades.map((g) => {
+                    const pct = Math.round((g.score / g.maxScore) * 100);
+                    const color = pct >= 70 ? "text-green-400" : pct >= 50 ? "text-yellow-400" : "text-red-400";
+                    return (
+                      <div key={g.id} className="p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="text-white font-medium">{g.refTitle}</div>
+                            <div className="text-slate-400 text-xs mt-1">
+                              <span className={`badge border mr-2 ${
+                                g.refType === "test"
+                                  ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                  : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                              }`}>{g.refType}</span>
+                              Graded by {g.instructorName} · {formatDate(g.gradedAt)}
+                            </div>
+                            {g.feedback && <p className="text-slate-500 text-xs mt-2 italic">"{g.feedback}"</p>}
+                          </div>
+                          <div className="text-right ml-4 flex-shrink-0">
+                            <div className={`text-xl font-bold ${color}`}>{g.score}/{g.maxScore}</div>
+                            <div className={`text-xs ${color}`}>{pct}%</div>
+                          </div>
+                        </div>
+                        <div className="mt-3 bg-slate-700 rounded-full h-1.5">
+                          <div className={`h-1.5 rounded-full ${
+                            pct >= 70 ? "bg-green-500" : pct >= 50 ? "bg-yellow-500" : "bg-red-500"
+                          }`} style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
