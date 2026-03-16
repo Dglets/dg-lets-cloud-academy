@@ -35,9 +35,10 @@ export default function Enroll() {
     setApiError("");
     try {
       await enrollmentAPI.submit(values);
+      const snapshot = { fullName: values.fullName, email: values.email, phone: values.phone };
       setSuccess(true);
       reset();
-      setTimeout(() => navigate("/payment", { state: { fullName: values.fullName, email: values.email, phone: values.phone, program: "Cloud Engineering Foundations" } }), 2000);
+      setTimeout(() => navigate("/payment", { state: { ...snapshot, program: "Cloud Engineering Foundations" } }), 2000);
     } catch (err) {
       setApiError(err.response?.data?.error || "Something went wrong. Please try again.");
     } finally {

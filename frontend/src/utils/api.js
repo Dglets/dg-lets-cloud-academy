@@ -11,6 +11,12 @@ api.interceptors.request.use((config) => {
     token = localStorage.getItem("instructor_token");
   } else if (url === "/students/all") {
     token = localStorage.getItem("admin_token") || localStorage.getItem("instructor_token");
+  } else if (url.match(/^\/students\/(assignments|tests|tutorials)/)) {
+    // GET portal content — accessible by student, admin, or instructor
+    token =
+      localStorage.getItem("student_token") ||
+      localStorage.getItem("admin_token") ||
+      localStorage.getItem("instructor_token");
   } else if (url.startsWith("/students")) {
     token = localStorage.getItem("student_token") || localStorage.getItem("admin_token");
   } else {

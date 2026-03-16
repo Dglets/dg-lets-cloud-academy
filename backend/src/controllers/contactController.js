@@ -19,7 +19,7 @@ const createContact = async (req, res) => {
 const getContacts = async (req, res) => {
   try {
     const { Items } = await docClient.send(new ScanCommand({ TableName: TABLE }));
-    res.json(Items);
+    res.json(Items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
   } catch (err) {
     console.error("getContacts error:", err);
     res.status(500).json({ error: "Failed to fetch contacts" });

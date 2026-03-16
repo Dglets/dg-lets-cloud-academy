@@ -50,18 +50,19 @@ const samplePosts = [
 ];
 
 export default function Blog() {
-  const [posts, setPosts] = useState(samplePosts);
+  const [posts, setPosts] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [fromApi, setFromApi] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      setLoading(true);
       try {
         const { data } = await blogAPI.getAll();
-        if (data.length > 0) setPosts(data);
+        if (data.length > 0) { setPosts(data); setFromApi(true); }
+        else setPosts(samplePosts);
       } catch {
-        // Use sample posts as fallback
+        setPosts(samplePosts);
       } finally {
         setLoading(false);
       }
@@ -118,12 +119,18 @@ export default function Blog() {
                     {post.title}
                   </h2>
                   <p className="text-slate-400 text-sm leading-relaxed flex-1">{post.excerpt}</p>
-                  <Link
-                    to={`/blog/${post.id}`}
-                    className="mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium inline-flex items-center gap-1 transition-colors"
-                  >
-                    Read More →
-                  </Link>
+                  {fromApi ? (
+                    <Link
+                      to={`/blog/${post.id}`}
+                      className="mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium inline-flex items-center gap-1 transition-colors"
+                    >
+                      Read More →
+                    </Link>
+                  ) : (
+                    <span className="mt-4 text-slate-500 text-sm font-medium inline-flex items-center gap-1 cursor-default">
+                      Coming Soon →
+                    </span>
+                  )}
                 </article>
               ))}
             </div>
