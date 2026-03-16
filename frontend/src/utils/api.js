@@ -7,8 +7,12 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const url = config.url || "";
   let token;
-  if (url.startsWith("/instructors")) {
+  if (url === "/instructors/login") {
+    token = null;
+  } else if (url.match(/^\/instructors\/grades/) && !url.includes("/all")) {
     token = localStorage.getItem("instructor_token");
+  } else if (url.startsWith("/instructors")) {
+    token = localStorage.getItem("admin_token") || localStorage.getItem("instructor_token");
   } else if (url === "/students/all") {
     token = localStorage.getItem("admin_token") || localStorage.getItem("instructor_token");
   } else if (url.match(/^\/students\/(assignments|tests|tutorials)/)) {
